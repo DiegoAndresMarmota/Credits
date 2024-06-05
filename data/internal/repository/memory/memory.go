@@ -31,3 +31,11 @@ func (r *Repository) GetData(_ context.Context, id string) (*model.Data, error) 
 	}
 	return md, nil
 }
+
+// EditData actualiza los datos de los creditos de un cliente, según su identificador.
+func (r *Repository) EditData(_ context.Context, id string, data *model.Data) error {
+	r.Lock()
+	defer r.Unlock()
+	r.data[id] = data
+	return nil
+}
