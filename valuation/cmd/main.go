@@ -14,7 +14,7 @@ func main() {
 	ctrl := controller.NewValueService(repo)
 	h := handler.NewHandValuation(ctrl)
 	http.Handle("/valuation", http.HandlerFunc(h.Handle))
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServe(":8090", nil); err != nil {
 		panic(err)
 	}
 }

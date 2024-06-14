@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+
 	"credits/valuation/internal/repository"
 	"credits/valuation/pkg/model"
 	"errors"
@@ -11,8 +12,8 @@ var ErrNotFound = errors.New("valuation not found for a value")
 
 // valuationRepository crea una interface
 type valuationRepository interface {
-	GetData(ctx context.Context, valueID model.IdentifyID, valueType model.IdentifyType) ([]model.Valuation, error)
-	PutData(ctx context.Context, valueID model.IdentifyID, valueType model.IdentifyType, valuation *model.Valuation) error
+	GetValuation(ctx context.Context, valueID model.IdentifyID, valueType model.IdentifyType) ([]model.Valuation, error)
+	PutValuation(ctx context.Context, valueID model.IdentifyID, valueType model.IdentifyType, valuation *model.Valuation) error
 }
 
 // Controller define un controlador para el servicio de evaluación.
@@ -26,7 +27,7 @@ func NewValueService(repo valuationRepository) *Controller {
 }
 
 func (c *Controller) GetAddingValuation(ctx context.Context, valueID model.IdentifyID, valueType model.IdentifyType) (float64, error) {
-	valuations, err := c.repo.GetData(ctx, valueID, valueType)
+	valuations, err := c.repo.GetValuation(ctx, valueID, valueType)
 	if err != nil && err == repository.ErrNotFound {
 		return 0, ErrNotFound
 	} else if err != nil {
@@ -41,5 +42,5 @@ func (c *Controller) GetAddingValuation(ctx context.Context, valueID model.Ident
 }
 
 func (c *Controller) PutValuation(ctx context.Context, valueID model.IdentifyID, valueType model.IdentifyType, valuation *model.Valuation) error {
-	return c.repo.PutData(ctx, valueID, valueType, valuation)
+	return c.repo.PutValuation(ctx, valueID, valueType, valuation)
 }
