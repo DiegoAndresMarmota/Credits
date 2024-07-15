@@ -2,25 +2,34 @@ package http
 
 import (
 	"context"
+	"credits/balancer/pkg/discovery"
 	"credits/credits/internal/gateway"
 	"credits/data/pkg/model"
 	"encoding/json"
 	"fmt"
+	"log"
+	"math/rand"
 	"net/http"
 )
 
 // Gateway define el http de de datos para la evaluación.
 type Gateway struct {
-	address string
+	registry discovery.Registry
 }
 
 // Gateway define una nueva instancia para el constructor para el servicio de datos de la evaluación.
-func NewGateway(address string) *Gateway {
-	return &Gateway{address}
+func NewGateway(registry discovery.Registry) *Gateway {
+	return &Gateway{registry: registry}
 }
 
 func (ga *Gateway) GetDataID(ctx context.Context, id string) (*model.Data, error) {
-	req, err := http.NewRequest(http.MethodGet, ga.address+"/v1/data/"+id, nil)
+	address, err := ga.registry.ServiceAddresses(ctx, "data")
+	if err != nil {
+		return nil, err
+	}
+	url := "http://" + address[rand.Intn(len(address))] + "/data"
+	log.Printf("calling data service. Request: GET" + url)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}

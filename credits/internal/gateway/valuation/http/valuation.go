@@ -2,25 +2,31 @@ package http
 
 import (
 	"context"
+	"credits/balancer/pkg/discovery"
 	"credits/valuation/pkg/model"
 	"encoding/json"
 	"fmt"
+	"log"
+	"math/rand"
 	"net/http"
 )
 
 // Gateway define el http de los creditos para la evaluación.
 type Gateway struct {
-	address string
+	registry discovery.Registry
 }
 
 // NewGateway define una nueva instancia para el constructor para el servicio de creditos en la evaluación.
-func NewGateway(address string) *Gateway {
-	return &Gateway{address: address}
+func NewGateway(registry discovery.Registry) *Gateway {
+	return &Gateway{registry: registry}
 }
 
 // GetAddValuation obtiene la valoración de un credito.
-func (g *Gateway) GetAddValuation(ctx context.Context, valuaID model.IdentifyID, valuaType model.IdentifyType) (float64, error) {
-	req, err := http.NewRequest(http.MethodGet, g.address+"/v1/valuation", nil)
+func (ga *Gateway) GetAddValuation(ctx context.Context, valuaID model.IdentifyID, valuaType model.IdentifyType) (float64, error) {
+	address, _ := ga.registry.ServiceAddresses(ctx, "valuation")
+	url := "http://" + address[rand.Intn(len(address))] + "/valuation"
+	log.Printf("calling valuation service. Request: GET" + url)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return 0, err
 	}
@@ -51,8 +57,11 @@ func (g *Gateway) GetAddValuation(ctx context.Context, valuaID model.IdentifyID,
 }
 
 // PutEditValuation edita las valoraciones de los creditos.
-func (g *Gateway) PutEditValuation(ctx context.Context, valuaID model.IdentifyID, valuaType model.IdentifyType, valuation *model.Valuation) error {
-	req, err := http.NewRequest(http.MethodPut, g.address+"/v1/valuation", nil)
+func (ga *Gateway) PutEditValuation(ctx context.Context, valuaID model.IdentifyID, valuaType model.IdentifyType, valuation *model.Valuation) error {
+	address, _ := ga.registry.ServiceAddresses(ctx, "valuation")
+	url := "http://" + address[rand.Intn(len(address))] + "/valuation"
+	log.Printf("calling valuation service. Request: PUT" + url)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return err
 	}
